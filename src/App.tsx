@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useStore } from './store';
 import { loadState, checkAndRequestPersistence } from './db';
 import { BottomNav, type NavTab } from './components/BottomNav';
@@ -31,23 +31,21 @@ export default function App() {
   const [tab, setTab] = useState<NavTab>('overview');
   const { hydrate, locale } = useStore();
 
-  useEffect(() => {
-    boot();
-  }, []);
+  const finishBoot = useCallback(async () => {
+    setStage('loading');
+    const state = await loadState();
+    if (state) hydrate(state);
+    const onboardingDone = localStorage.getItem(ONBOARDING_KEY) === 'true';
+    setStage(onboardingDone ? 'ready' : 'onboarding');
+  }, [hydrate]);
 
-  async function boot() {
-    // Step 1: check / request storage persistence
-    const status = await checkAndRequestPersistence();
-    if (status === 'denied') {
-      setStage('storage-denied');
-      return;
-    }
-    if (status === 'unsupported') {
-      setStage('storage-unsupported');
-      return;
-    }
-    await finishBoot();
-  }
+  useEffect(() => {
+    checkAndRequestPersistence().then(status => {
+      if (status === 'denied') { setStage('storage-denied'); return; }
+      if (status === 'unsupported') { setStage('storage-unsupported'); return; }
+      finishBoot();
+    });
+  }, [finishBoot]);
 
   async function requestStorageAndContinue() {
     const status = await checkAndRequestPersistence();
@@ -56,14 +54,6 @@ export default function App() {
     } else {
       setStage(status === 'unsupported' ? 'storage-unsupported' : 'storage-denied');
     }
-  }
-
-  async function finishBoot() {
-    setStage('loading');
-    const state = await loadState();
-    if (state) hydrate(state);
-    const onboardingDone = localStorage.getItem(ONBOARDING_KEY) === 'true';
-    setStage(onboardingDone ? 'ready' : 'onboarding');
   }
 
   function completeOnboarding() {

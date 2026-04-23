@@ -84,7 +84,7 @@ export function AcornDetailPage({ acornId, onBack, backLabel }: Props) {
     } else {
       setTxAmount(''); setTxDate(new Date().toISOString().slice(0, 10)); setTxNote('');
     }
-    setSheet({ type, data: data as any });
+    setSheet({ type, data } as Exclude<Sheet, null | { type: 'plan' }>);
   }
 
   function savePlan() {
