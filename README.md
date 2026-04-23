@@ -27,17 +27,17 @@ The name is intentional: an acorn looks unremarkable, but it already holds every
 
 ## Getting Started
 
-**Prerequisites:** Node.js ≥ 20, npm
+**Prerequisites:** Node.js ≥ 20, [pnpm](https://pnpm.io)
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ```bash
-npm run build   # production build → dist/
+pnpm build   # production build → dist/
 ```
 
 The `dist/` folder is a self-contained static site — deploy to any web server or CDN.
