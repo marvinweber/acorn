@@ -114,6 +114,7 @@ export default function App() {
         <div className="flex items-center gap-2">
           <span className="text-xl leading-none">🌰</span>
           <span className="font-bold text-[#f9fafb] tracking-tight">Acorn</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-[#78350f] text-[#fcd34d]">beta</span>
         </div>
         <span className="text-sm text-[#9ca3af]">{PAGE_TITLES[tab]()}</span>
       </header>
