@@ -206,6 +206,8 @@ export function SettingsPage({ onShowOnboarding }: Props) {
           {t('show_onboarding')}
         </button>
       </section>
+
+      <p className="text-center text-xs text-text-secondary py-2">Acorn {__APP_VERSION__}</p>
     </div>
   );
 }

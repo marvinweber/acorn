@@ -42,6 +42,13 @@ pnpm build   # production build → dist/
 
 The `dist/` folder is a self-contained static site — deploy to any web server or CDN.
 
+To publish a release to GitHub Pages, create and push a tag prefixed with `v` (e.g. `v1.0.0`) — the deploy workflow triggers only on `v*` tags:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
 ---
 
 ## Quick Usage
