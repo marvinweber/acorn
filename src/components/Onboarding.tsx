@@ -10,6 +10,8 @@ interface Slide {
 const SLIDES: Slide[] = [
   { titleKey: 'onboarding_1_title', bodyKey: 'onboarding_1_body', bg: '#16a34a' },
   { titleKey: 'onboarding_why_title', bodyKey: 'onboarding_why_body', bg: '#78350f' },
+  { titleKey: 'onboarding_privacy_title', bodyKey: 'onboarding_privacy_body', bg: '#0f766e' },
+  { titleKey: 'onboarding_backup_title', bodyKey: 'onboarding_backup_body', bg: '#b45309' },
   { titleKey: 'onboarding_2_title', bodyKey: 'onboarding_2_body', bg: '#3b82f6' },
   { titleKey: 'onboarding_3_title', bodyKey: 'onboarding_3_body', bg: '#16a34a' },
   { titleKey: 'onboarding_4_title', bodyKey: 'onboarding_4_body', bg: '#8b5cf6' },
