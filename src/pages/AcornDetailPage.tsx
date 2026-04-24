@@ -9,6 +9,8 @@ import { FAB } from '../components/FAB';
 import { FormInput, FormSelect } from '../components/FormField';
 import { ProgressBar } from '../components/ProgressBar';
 import { GrowthChart } from '../components/GrowthChart';
+import { getPastStart } from '../ranges';
+import type { PastRange, FutureRange } from '../ranges';
 import type { Rhythm, SavingsPlan, Deposit, Withdrawal } from '../types';
 
 const RHYTHM_OPTIONS = (): { value: Rhythm; label: string }[] => [
@@ -48,6 +50,21 @@ export function AcornDetailPage({ acornId, onBack, backLabel }: Props) {
 
   const [sheet, setSheet] = useState<Sheet>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ type: string; id: string } | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const [pastRange, setPastRange] = useState<PastRange>('1Y');
+  const [futureRange, setFutureRange] = useState<FutureRange>('1Y');
+
+  const today = new Date().toISOString().slice(0, 10);
+  const chartStart = getPastStart(pastRange).toISOString().slice(0, 10);
+
+  const pastPlanCount = plans.filter(p => p.end && p.end < today).length;
+  const pastDepCount = deps.filter(d => d.date < chartStart).length;
+  const pastWithCount = withs.filter(w => w.date < chartStart).length;
+  const pastCount = pastPlanCount + pastDepCount + pastWithCount;
+
+  const visiblePlans = showHistory ? plans : plans.filter(p => !p.end || p.end >= today);
+  const visibleDeps = showHistory ? deps : deps.filter(d => d.date >= chartStart);
+  const visibleWiths = showHistory ? withs : withs.filter(w => w.date >= chartStart);
 
   // Plan form
   const [planAmount, setPlanAmount] = useState('');
@@ -156,14 +173,28 @@ export function AcornDetailPage({ acornId, onBack, backLabel }: Props) {
       {/* Growth chart */}
       <div className="bg-surface-alt rounded-xl border border-[#374151] p-4">
         <h3 className="text-sm font-semibold text-text-primary mb-3">{t('growth_chart')}</h3>
-        <GrowthChart plans={plans} deposits={deps} withdrawals={withs} />
+        <GrowthChart
+          plans={plans} deposits={deps} withdrawals={withs}
+          pastRange={pastRange} futureRange={futureRange}
+          onPastRangeChange={setPastRange} onFutureRangeChange={setFutureRange}
+        />
       </div>
+
+      {/* History toggle */}
+      {pastCount > 0 && (
+        <button
+          onClick={() => setShowHistory(h => !h)}
+          className="self-center text-xs text-text-secondary hover:text-text-primary transition-colors cursor-pointer px-3 py-1 rounded-full bg-surface-alt border border-[#374151]"
+        >
+          {showHistory ? t('hide_history') : `${t('show_history')} (${pastCount})`}
+        </button>
+      )}
 
       {/* Savings Plans */}
       <Section title={t('savings_plans')} onAdd={() => openPlanSheet()}>
-        {plans.length === 0
-          ? <EmptyRow label={t('no_savings_plans')} />
-          : plans.map(plan => (
+        {visiblePlans.length === 0
+          ? <EmptyRow label={!showHistory && pastPlanCount > 0 ? t('older_items_hidden') : t('no_savings_plans')} />
+          : visiblePlans.map(plan => (
             <Row
               key={plan.id}
               primary={`${formatCurrency(plan.amount)} · ${t(plan.rhythm)}`}
@@ -178,9 +209,9 @@ export function AcornDetailPage({ acornId, onBack, backLabel }: Props) {
 
       {/* Deposits */}
       <Section title={t('deposits')} onAdd={() => openTxSheet('deposit')}>
-        {deps.length === 0
-          ? <EmptyRow label={t('no_deposits')} />
-          : deps.slice().reverse().map(dep => (
+        {visibleDeps.length === 0
+          ? <EmptyRow label={!showHistory && pastDepCount > 0 ? t('older_items_hidden') : t('no_deposits')} />
+          : visibleDeps.slice().reverse().map(dep => (
             <Row
               key={dep.id}
               primary={formatCurrency(dep.amount)}
@@ -196,9 +227,9 @@ export function AcornDetailPage({ acornId, onBack, backLabel }: Props) {
 
       {/* Withdrawals */}
       <Section title={t('withdrawals')} onAdd={() => openTxSheet('withdrawal')}>
-        {withs.length === 0
-          ? <EmptyRow label={t('no_withdrawals')} />
-          : withs.slice().reverse().map(w => (
+        {visibleWiths.length === 0
+          ? <EmptyRow label={!showHistory && pastWithCount > 0 ? t('older_items_hidden') : t('no_withdrawals')} />
+          : visibleWiths.slice().reverse().map(w => (
             <Row
               key={w.id}
               primary={formatCurrency(w.amount)}

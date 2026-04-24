@@ -1,5 +1,4 @@
-import { useMemo, useState } from 'react';
-import { startOfDay, subMonths, subYears, addMonths, addYears } from 'date-fns';
+import { useMemo } from 'react';
 import {
   ComposedChart, Area, XAxis, YAxis, Tooltip,
   ResponsiveContainer, ReferenceLine,
@@ -9,9 +8,10 @@ import { calcChartSeries } from '../calculations';
 import type { ChartDataPoint } from '../calculations';
 import type { SavingsPlan, Deposit, Withdrawal } from '../types';
 import { formatCurrency } from '../i18n';
+import { getPastStart, getFutureEnd } from '../ranges';
+import type { PastRange, FutureRange } from '../ranges';
 
-type PastRange   = '1M' | '3M' | '6M' | '1Y' | '5Y';
-type FutureRange = '6M' | '1Y' | '3Y' | '5Y' | '10Y';
+export type { PastRange, FutureRange };
 
 const PAST_OPTIONS:   { id: PastRange;   label: string }[] = [
   { id: '1M', label: '1M' }, { id: '3M', label: '3M' },
@@ -22,22 +22,6 @@ const FUTURE_OPTIONS: { id: FutureRange; label: string }[] = [
   { id: '3Y', label: '3Y' }, { id: '5Y', label: '5Y' }, { id: '10Y', label: '10Y' },
 ];
 
-function getPastStart(p: PastRange): Date {
-  const t = startOfDay(new Date());
-  switch (p) {
-    case '1M': return subMonths(t, 1); case '3M': return subMonths(t, 3);
-    case '6M': return subMonths(t, 6); case '1Y': return subYears(t, 1);
-    case '5Y': return subYears(t, 5);
-  }
-}
-function getFutureEnd(f: FutureRange): Date {
-  const t = startOfDay(new Date());
-  switch (f) {
-    case '6M':  return addMonths(t, 6);  case '1Y': return addYears(t, 1);
-    case '3Y':  return addYears(t, 3);   case '5Y': return addYears(t, 5);
-    case '10Y': return addYears(t, 10);
-  }
-}
 
 function pts2path(pts: { x: number; y: number }[]): string {
   if (pts.length < 2) return '';
@@ -138,11 +122,13 @@ interface Props {
   plans: SavingsPlan[];
   deposits: Deposit[];
   withdrawals: Withdrawal[];
+  pastRange: PastRange;
+  futureRange: FutureRange;
+  onPastRangeChange: (r: PastRange) => void;
+  onFutureRangeChange: (r: FutureRange) => void;
 }
 
-export function GrowthChart({ plans, deposits, withdrawals }: Props) {
-  const [pastRange,   setPastRange]   = useState<PastRange>('1Y');
-  const [futureRange, setFutureRange] = useState<FutureRange>('1Y');
+export function GrowthChart({ plans, deposits, withdrawals, pastRange, futureRange, onPastRangeChange, onFutureRangeChange }: Props) {
 
   const data = useMemo(() =>
     calcChartSeries(plans, deposits, withdrawals, getPastStart(pastRange), getFutureEnd(futureRange)),
@@ -170,7 +156,7 @@ export function GrowthChart({ plans, deposits, withdrawals }: Props) {
           <span className="text-[10px] text-text-secondary w-14 shrink-0 text-right">← Past</span>
           <div className="flex gap-1 flex-1">
             {PAST_OPTIONS.map(o => (
-              <button key={o.id} onClick={() => setPastRange(o.id)}
+              <button key={o.id} onClick={() => onPastRangeChange(o.id)}
                 className={`flex-1 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
                   pastRange === o.id ? 'bg-brand text-white' : 'bg-[#374151] text-text-secondary hover:text-text-primary'
                 }`}>{o.label}</button>
@@ -181,7 +167,7 @@ export function GrowthChart({ plans, deposits, withdrawals }: Props) {
           <span className="text-[10px] text-text-secondary w-14 shrink-0 text-right">Future →</span>
           <div className="flex gap-1 flex-1">
             {FUTURE_OPTIONS.map(o => (
-              <button key={o.id} onClick={() => setFutureRange(o.id)}
+              <button key={o.id} onClick={() => onFutureRangeChange(o.id)}
                 className={`flex-1 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
                   futureRange === o.id ? 'bg-[#3b82f6] text-white' : 'bg-[#374151] text-text-secondary hover:text-text-primary'
                 }`}>{o.label}</button>

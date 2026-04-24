@@ -126,6 +126,11 @@ const translations = {
     storage_unsupported_warning_body: 'Dein Browser unterstützt keine Speicherberechtigungen. Exportiere regelmäßig, um Datenverlust zu vermeiden.',
     storage_unsupported: 'Dein Browser unterstützt keine Speicherberechtigungen. Daten könnten unter Speicherdruck verloren gehen.',
 
+    // History toggle
+    show_history: 'Ältere anzeigen',
+    hide_history: 'Ältere verbergen',
+    older_items_hidden: 'Ältere Einträge ausgeblendet',
+
     // Onboarding
     show_onboarding: 'Einführung nochmals anzeigen',
     onboarding_skip: 'Überspringen',
@@ -265,6 +270,11 @@ const translations = {
     storage_warning_body: 'Your data may be cleared when the browser is closed. Install Acorn as an app or export regularly.',
     storage_unsupported_warning_body: 'Your browser does not support storage permissions. Export regularly to avoid data loss.',
     storage_unsupported: 'Your browser does not support storage permissions. Data may be lost under storage pressure.',
+
+    // History toggle
+    show_history: 'Show older',
+    hide_history: 'Hide older',
+    older_items_hidden: 'Older items hidden',
 
     // Onboarding
     show_onboarding: 'Show introduction again',
