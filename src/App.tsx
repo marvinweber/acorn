@@ -1,6 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt(): Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
 import { useStore } from './store';
-import { loadState, checkAndRequestPersistence } from './db';
+import { loadState, checkAndRequestPersistence, type StoragePersistenceStatus } from './db';
 import { BottomNav, type NavTab } from './components/BottomNav';
 import { StorageGate } from './components/StorageGate';
 import { Onboarding } from './components/Onboarding';
@@ -29,7 +34,20 @@ type BootStage =
 export default function App() {
   const [stage, setStage] = useState<BootStage>('storage-check');
   const [tab, setTab] = useState<NavTab>('overview');
+  const [storageStatus, setStorageStatus] = useState<StoragePersistenceStatus>('granted');
+  const [canInstall, setCanInstall] = useState(false);
+  const installPrompt = useRef<BeforeInstallPromptEvent | null>(null);
   const { hydrate, locale } = useStore();
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      installPrompt.current = e as BeforeInstallPromptEvent;
+      setCanInstall(true);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
 
   const finishBoot = useCallback(async () => {
     setStage('loading');
@@ -41,6 +59,7 @@ export default function App() {
 
   useEffect(() => {
     checkAndRequestPersistence().then(status => {
+      setStorageStatus(status);
       if (status === 'denied') { setStage('storage-denied'); return; }
       if (status === 'unsupported') { setStage('storage-unsupported'); return; }
       finishBoot();
@@ -49,10 +68,32 @@ export default function App() {
 
   async function requestStorageAndContinue() {
     const status = await checkAndRequestPersistence();
+    setStorageStatus(status);
     if (status === 'granted') {
       await finishBoot();
     } else {
       setStage(status === 'unsupported' ? 'storage-unsupported' : 'storage-denied');
+    }
+  }
+
+  async function retryStorageFromSettings() {
+    const status = await checkAndRequestPersistence();
+    setStorageStatus(status);
+  }
+
+  async function handleInstall() {
+    const prompt = installPrompt.current;
+    if (!prompt) return;
+    await prompt.prompt();
+    const { outcome } = await prompt.userChoice;
+    installPrompt.current = null;
+    setCanInstall(false);
+    if (outcome === 'accepted') {
+      // Chrome grants persistent storage automatically for installed PWAs
+      const status = await checkAndRequestPersistence();
+      setStorageStatus(status);
+      if (status === 'granted' && stage === 'ready') return; // warning auto-clears
+      if (status === 'granted') await finishBoot();
     }
   }
 
@@ -89,6 +130,7 @@ export default function App() {
       <StorageGate
         status="denied"
         onRequest={requestStorageAndContinue}
+        onInstall={canInstall ? handleInstall : undefined}
         onContinueAnyway={finishBoot}
       />
     );
@@ -122,7 +164,15 @@ export default function App() {
       <main className="flex-1 px-4 pt-4 pb-24 overflow-y-auto">
         {tab === 'overview' && <OverviewPage key={locale} />}
         {tab === 'accounts' && <AccountsPage key={locale} />}
-        {tab === 'settings' && <SettingsPage key={locale} onShowOnboarding={showOnboarding} />}
+        {tab === 'settings' && (
+          <SettingsPage
+            key={locale}
+            onShowOnboarding={showOnboarding}
+            storageStatus={storageStatus}
+            onInstall={canInstall ? handleInstall : undefined}
+            onRetryStorage={retryStorageFromSettings}
+          />
+        )}
       </main>
 
       <BottomNav active={tab} onChange={setTab} />

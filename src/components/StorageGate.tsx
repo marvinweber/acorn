@@ -4,10 +4,11 @@ import { t } from '../i18n';
 interface Props {
   status: 'checking' | 'denied' | 'unsupported';
   onRequest: () => void;
+  onInstall?: () => void;
   onContinueAnyway: () => void;
 }
 
-export function StorageGate({ status, onRequest, onContinueAnyway }: Props) {
+export function StorageGate({ status, onRequest, onInstall, onContinueAnyway }: Props) {
   if (status === 'checking') {
     return (
       <div className="flex items-center justify-center h-screen bg-surface">
@@ -35,20 +36,32 @@ export function StorageGate({ status, onRequest, onContinueAnyway }: Props) {
           )}
         </div>
 
-        {status === 'denied' || status === 'unsupported' ? (
+        {status === 'unsupported' ? (
           <button
             onClick={onContinueAnyway}
-            className="w-full py-3 rounded-xl bg-[#374151] text-text-primary font-medium cursor-pointer hover:bg-[#4b5563] transition-colors"
+            className="w-full py-3 rounded-xl bg-surface-raised text-text-primary font-medium cursor-pointer hover:bg-[#4b5563] transition-colors"
           >
             {t('storage_continue')}
           </button>
         ) : (
           <div className="flex flex-col gap-3 w-full">
+            {status === 'denied' && onInstall && (
+              <button
+                onClick={onInstall}
+                className="w-full py-3 rounded-xl bg-brand text-white font-medium cursor-pointer hover:bg-brand-dark transition-colors"
+              >
+                {t('storage_install')}
+              </button>
+            )}
             <button
               onClick={onRequest}
-              className="w-full py-3 rounded-xl bg-brand text-white font-medium cursor-pointer hover:bg-brand-dark transition-colors"
+              className={`w-full py-3 rounded-xl font-medium cursor-pointer transition-colors ${
+                status === 'denied' && onInstall
+                  ? 'bg-surface-raised text-text-primary hover:bg-[#4b5563]'
+                  : 'bg-brand text-white hover:bg-brand-dark'
+              }`}
             >
-              {t('storage_grant')}
+              {status === 'denied' ? t('storage_retry') : t('storage_grant')}
             </button>
             <button
               onClick={onContinueAnyway}

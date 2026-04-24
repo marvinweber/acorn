@@ -1,15 +1,19 @@
 import { useRef, useState } from 'react';
-import { Download, Upload, RefreshCw, CheckCircle, AlertCircle, BookOpen } from 'lucide-react';
+import { Download, Upload, RefreshCw, CheckCircle, AlertCircle, BookOpen, Smartphone } from 'lucide-react';
 import { useStore } from '../store';
 import { syncWithWebDAV } from '../webdav';
 import { t, formatDate, type Locale } from '../i18n';
 import { FormInput, FormToggle } from '../components/FormField';
+import type { StoragePersistenceStatus } from '../db';
 
 interface Props {
   onShowOnboarding: () => void;
+  storageStatus: StoragePersistenceStatus;
+  onInstall?: () => void;
+  onRetryStorage: () => Promise<void>;
 }
 
-export function SettingsPage({ onShowOnboarding }: Props) {
+export function SettingsPage({ onShowOnboarding, storageStatus, onInstall, onRetryStorage }: Props) {
   const {
     locale, setLocale,
     webdav, setWebDAV,
@@ -193,6 +197,44 @@ export function SettingsPage({ onShowOnboarding }: Props) {
             onChange={handleFileChange}
             className="hidden"
           />
+        </div>
+      </section>
+
+      {/* Storage */}
+      <section className={`bg-surface-alt rounded-xl border p-4 ${storageStatus !== 'granted' ? 'border-warning/40' : 'border-[#374151]'}`}>
+        <h3 className="text-xs text-text-secondary uppercase tracking-wide mb-3">{t('storage_section')}</h3>
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-2">
+            {storageStatus === 'granted'
+              ? <CheckCircle size={16} className="text-brand shrink-0" />
+              : <AlertCircle size={16} className="text-warning shrink-0" />}
+            <span className={`text-sm font-medium ${storageStatus === 'granted' ? 'text-text-primary' : 'text-warning'}`}>
+              {storageStatus === 'granted' ? t('storage_status_granted') : t('storage_warning_title')}
+            </span>
+          </div>
+          {storageStatus !== 'granted' && (
+            <p className="text-xs text-text-secondary leading-relaxed">
+              {storageStatus === 'unsupported' ? t('storage_unsupported_warning_body') : t('storage_warning_body')}
+            </p>
+          )}
+          {onInstall && storageStatus !== 'granted' && (
+            <button
+              onClick={onInstall}
+              className="flex items-center justify-center gap-2 py-2.5 rounded-lg bg-brand text-white text-sm font-medium cursor-pointer hover:bg-brand-dark transition-colors"
+            >
+              <Smartphone size={15} />
+              {t('storage_install')}
+            </button>
+          )}
+          {storageStatus !== 'unsupported' && (
+            <button
+              onClick={onRetryStorage}
+              className="flex items-center justify-center gap-2 py-2.5 rounded-lg bg-surface-raised text-text-primary text-sm font-medium cursor-pointer hover:bg-[#4b5563] transition-colors"
+            >
+              <RefreshCw size={15} />
+              {t('storage_check')}
+            </button>
+          )}
         </div>
       </section>
 
