@@ -67,6 +67,11 @@ export function AcornDetailPage({ acornId, onBack, backLabel }: Props) {
   const visibleDeps = showHistory ? deps : deps.filter(d => d.date >= chartStartStr);
   const visibleWiths = showHistory ? withs : withs.filter(w => w.date >= chartStartStr);
 
+  const combinedTxs = useMemo(() => [
+    ...visibleDeps.map(d => ({ ...d, txType: 'deposit' as const })),
+    ...visibleWiths.map(w => ({ ...w, txType: 'withdrawal' as const })),
+  ].sort((a, b) => b.date.localeCompare(a.date)), [visibleDeps, visibleWiths]);
+
   // Plan form
   const [planAmount, setPlanAmount] = useState('');
   const [planRhythm, setPlanRhythm] = useState<Rhythm>('monthly');
@@ -207,37 +212,26 @@ export function AcornDetailPage({ acornId, onBack, backLabel }: Props) {
         }
       </Section>
 
-      {/* Deposits */}
-      <Section title={t('deposits')} onAdd={() => openTxSheet('deposit')}>
-        {visibleDeps.length === 0
-          ? <EmptyRow label={!showHistory && pastDepCount > 0 ? t('older_items_hidden') : t('no_deposits')} />
-          : visibleDeps.slice().reverse().map(dep => (
+      {/* Transactions */}
+      <Section
+        title={t('transactions')}
+        actions={[
+          { label: t('deposit'), onClick: () => openTxSheet('deposit') },
+          { label: t('withdrawal'), onClick: () => openTxSheet('withdrawal') },
+        ]}
+      >
+        {combinedTxs.length === 0
+          ? <EmptyRow label={!showHistory && (pastDepCount + pastWithCount) > 0 ? t('older_items_hidden') : t('no_transactions')} />
+          : combinedTxs.map(tx => (
             <Row
-              key={dep.id}
-              primary={formatCurrency(dep.amount)}
-              secondary={formatDate(dep.date)}
-              note={dep.note}
-              positive
-              onEdit={() => openTxSheet('deposit', dep)}
-              onDelete={() => setDeleteTarget({ type: 'deposit', id: dep.id })}
-            />
-          ))
-        }
-      </Section>
-
-      {/* Withdrawals */}
-      <Section title={t('withdrawals')} onAdd={() => openTxSheet('withdrawal')}>
-        {visibleWiths.length === 0
-          ? <EmptyRow label={!showHistory && pastWithCount > 0 ? t('older_items_hidden') : t('no_withdrawals')} />
-          : visibleWiths.slice().reverse().map(w => (
-            <Row
-              key={w.id}
-              primary={formatCurrency(w.amount)}
-              secondary={formatDate(w.date)}
-              note={w.note}
-              negative
-              onEdit={() => openTxSheet('withdrawal', w)}
-              onDelete={() => setDeleteTarget({ type: 'withdrawal', id: w.id })}
+              key={tx.id}
+              primary={formatCurrency(tx.amount)}
+              secondary={formatDate(tx.date)}
+              note={tx.note}
+              positive={tx.txType === 'deposit'}
+              negative={tx.txType === 'withdrawal'}
+              onEdit={() => openTxSheet(tx.txType, tx)}
+              onDelete={() => setDeleteTarget({ type: tx.txType, id: tx.id })}
             />
           ))
         }
@@ -289,14 +283,24 @@ export function AcornDetailPage({ acornId, onBack, backLabel }: Props) {
   );
 }
 
-function Section({ title, onAdd, children }: { title: string; onAdd: () => void; children: React.ReactNode }) {
+function Section({ title, onAdd, actions, children }: {
+  title: string;
+  onAdd?: () => void;
+  actions?: { label: string; onClick: () => void }[];
+  children: React.ReactNode;
+}) {
+  const btns = actions ?? (onAdd ? [{ label: t('add'), onClick: onAdd }] : []);
   return (
     <div className="bg-surface-alt rounded-xl border border-[#374151] overflow-hidden">
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#374151]">
         <h3 className="text-sm font-semibold text-text-primary">{title}</h3>
-        <button onClick={onAdd} className="text-brand text-xs font-medium hover:opacity-80 cursor-pointer">
-          + {t('add')}
-        </button>
+        <div className="flex gap-3">
+          {btns.map((b, i) => (
+            <button key={i} onClick={b.onClick} className="text-brand text-xs font-medium hover:opacity-80 cursor-pointer">
+              + {b.label}
+            </button>
+          ))}
+        </div>
       </div>
       <div>{children}</div>
     </div>

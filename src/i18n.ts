@@ -70,6 +70,8 @@ const translations = {
     edit_withdrawal: 'Auszahlung bearbeiten',
     no_deposits: 'Keine Einzahlungen.',
     no_withdrawals: 'Keine Auszahlungen.',
+    transactions: 'Transaktionen',
+    no_transactions: 'Keine Transaktionen.',
 
     // Overview
     total_balance: 'Gesamtguthaben',
@@ -233,6 +235,8 @@ const translations = {
     edit_withdrawal: 'Edit withdrawal',
     no_deposits: 'No deposits.',
     no_withdrawals: 'No withdrawals.',
+    transactions: 'Transactions',
+    no_transactions: 'No transactions.',
 
     total_balance: 'Total balance',
     all_accounts: 'All accounts',
