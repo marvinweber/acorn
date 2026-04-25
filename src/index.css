@@ -28,3 +28,15 @@ body {
 input, textarea, select {
   font-family: inherit;
 }
+
+.recharts-surface {
+  outline-width: 0px;
+}
+
+.recharts-wrapper:focus,
+.recharts-wrapper:focus-visible,
+.recharts-surface:focus,
+.recharts-surface:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
