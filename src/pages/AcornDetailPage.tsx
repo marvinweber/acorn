@@ -1,16 +1,16 @@
 import { useMemo, useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useStore } from '../store';
-import { calcAcornBalance } from '../calculations';
+import { calcAcornBalance, getEarliestDate } from '../calculations';
 import { t, formatCurrency, formatDate } from '../i18n';
 import { BottomSheet } from '../components/BottomSheet';
 import { ConfirmDialog } from '../components/ConfirmDialog';
-import { FAB } from '../components/FAB';
 import { FormInput, FormSelect } from '../components/FormField';
 import { ProgressBar } from '../components/ProgressBar';
 import { GrowthChart } from '../components/GrowthChart';
-import { getPastStart } from '../ranges';
-import type { PastRange, FutureRange } from '../ranges';
+import { RangePicker } from '../components/RangePicker';
+import { resolveRange, DEFAULT_RANGE } from '../ranges';
+import type { RangeState } from '../ranges';
 import type { Rhythm, SavingsPlan, Deposit, Withdrawal } from '../types';
 
 const RHYTHM_OPTIONS = (): { value: Rhythm; label: string }[] => [
@@ -51,20 +51,21 @@ export function AcornDetailPage({ acornId, onBack, backLabel }: Props) {
   const [sheet, setSheet] = useState<Sheet>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ type: string; id: string } | null>(null);
   const [showHistory, setShowHistory] = useState(false);
-  const [pastRange, setPastRange] = useState<PastRange>('1Y');
-  const [futureRange, setFutureRange] = useState<FutureRange>('1Y');
+  const [rangeState, setRangeState] = useState<RangeState>(DEFAULT_RANGE);
 
+  const earliestDate = useMemo(() => getEarliestDate(plans, deps, withs), [plans, deps, withs]);
+  const [chartStart, chartEnd] = useMemo(() => resolveRange(rangeState, earliestDate), [rangeState, earliestDate]);
+  const chartStartStr = chartStart.toISOString().slice(0, 10);
   const today = new Date().toISOString().slice(0, 10);
-  const chartStart = getPastStart(pastRange).toISOString().slice(0, 10);
 
   const pastPlanCount = plans.filter(p => p.end && p.end < today).length;
-  const pastDepCount = deps.filter(d => d.date < chartStart).length;
-  const pastWithCount = withs.filter(w => w.date < chartStart).length;
+  const pastDepCount = deps.filter(d => d.date < chartStartStr).length;
+  const pastWithCount = withs.filter(w => w.date < chartStartStr).length;
   const pastCount = pastPlanCount + pastDepCount + pastWithCount;
 
   const visiblePlans = showHistory ? plans : plans.filter(p => !p.end || p.end >= today);
-  const visibleDeps = showHistory ? deps : deps.filter(d => d.date >= chartStart);
-  const visibleWiths = showHistory ? withs : withs.filter(w => w.date >= chartStart);
+  const visibleDeps = showHistory ? deps : deps.filter(d => d.date >= chartStartStr);
+  const visibleWiths = showHistory ? withs : withs.filter(w => w.date >= chartStartStr);
 
   // Plan form
   const [planAmount, setPlanAmount] = useState('');
@@ -139,7 +140,7 @@ export function AcornDetailPage({ acornId, onBack, backLabel }: Props) {
   if (!acorn) return null;
 
   return (
-    <div className="flex flex-col gap-4 pb-4">
+    <div className="flex flex-col gap-4 pb-8">
       {/* Back */}
       <button
         onClick={onBack}
@@ -175,8 +176,7 @@ export function AcornDetailPage({ acornId, onBack, backLabel }: Props) {
         <h3 className="text-sm font-semibold text-text-primary mb-3">{t('growth_chart')}</h3>
         <GrowthChart
           plans={plans} deposits={deps} withdrawals={withs}
-          pastRange={pastRange} futureRange={futureRange}
-          onPastRangeChange={setPastRange} onFutureRangeChange={setFutureRange}
+          startDate={chartStart} endDate={chartEnd}
         />
       </div>
 
@@ -243,11 +243,7 @@ export function AcornDetailPage({ acornId, onBack, backLabel }: Props) {
         }
       </Section>
 
-      <FAB actions={[
-        { label: t('new_savings_plan'), onClick: () => openPlanSheet() },
-        { label: t('new_deposit'), onClick: () => openTxSheet('deposit') },
-        { label: t('new_withdrawal'), onClick: () => openTxSheet('withdrawal') },
-      ]} />
+      <RangePicker state={rangeState} onChange={setRangeState} earliestDate={earliestDate} />
 
       {/* Savings Plan Sheet */}
       <BottomSheet

@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { startOfDay } from 'date-fns';
 import {
   ComposedChart, Area, XAxis, YAxis, Tooltip,
   ResponsiveContainer, ReferenceLine,
@@ -7,20 +8,7 @@ import {
 import { calcChartSeries } from '../calculations';
 import type { ChartDataPoint } from '../calculations';
 import type { SavingsPlan, Deposit, Withdrawal } from '../types';
-import { formatCurrency } from '../i18n';
-import { getPastStart, getFutureEnd } from '../ranges';
-import type { PastRange, FutureRange } from '../ranges';
-
-export type { PastRange, FutureRange };
-
-const PAST_OPTIONS:   { id: PastRange;   label: string }[] = [
-  { id: '1M', label: '1M' }, { id: '3M', label: '3M' },
-  { id: '6M', label: '6M' }, { id: '1Y', label: '1Y' }, { id: '5Y', label: '5Y' },
-];
-const FUTURE_OPTIONS: { id: FutureRange; label: string }[] = [
-  { id: '6M', label: '6M' }, { id: '1Y', label: '1Y' },
-  { id: '3Y', label: '3Y' }, { id: '5Y', label: '5Y' }, { id: '10Y', label: '10Y' },
-];
+import { t, formatCurrency } from '../i18n';
 
 
 function pts2path(pts: { x: number; y: number }[]): string {
@@ -122,17 +110,15 @@ interface Props {
   plans: SavingsPlan[];
   deposits: Deposit[];
   withdrawals: Withdrawal[];
-  pastRange: PastRange;
-  futureRange: FutureRange;
-  onPastRangeChange: (r: PastRange) => void;
-  onFutureRangeChange: (r: FutureRange) => void;
+  startDate: Date;
+  endDate: Date | null;
 }
 
-export function GrowthChart({ plans, deposits, withdrawals, pastRange, futureRange, onPastRangeChange, onFutureRangeChange }: Props) {
+export function GrowthChart({ plans, deposits, withdrawals, startDate, endDate }: Props) {
 
   const data = useMemo(() =>
-    calcChartSeries(plans, deposits, withdrawals, getPastStart(pastRange), getFutureEnd(futureRange)),
-    [plans, deposits, withdrawals, pastRange, futureRange],
+    calcChartSeries(plans, deposits, withdrawals, startDate, endDate ?? startOfDay(new Date())),
+    [plans, deposits, withdrawals, startDate, endDate],
   );
 
   // Always include 0 in the domain so the gradient zero-stop aligns with the axis zero line
@@ -150,35 +136,9 @@ export function GrowthChart({ plans, deposits, withdrawals, pastRange, futureRan
 
   return (
     <div>
-      {/* Range selectors */}
-      <div className="flex flex-col gap-1.5 mb-3">
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] text-text-secondary w-14 shrink-0 text-right">← Past</span>
-          <div className="flex gap-1 flex-1">
-            {PAST_OPTIONS.map(o => (
-              <button key={o.id} onClick={() => onPastRangeChange(o.id)}
-                className={`flex-1 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
-                  pastRange === o.id ? 'bg-brand text-white' : 'bg-[#374151] text-text-secondary hover:text-text-primary'
-                }`}>{o.label}</button>
-            ))}
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] text-text-secondary w-14 shrink-0 text-right">Future →</span>
-          <div className="flex gap-1 flex-1">
-            {FUTURE_OPTIONS.map(o => (
-              <button key={o.id} onClick={() => onFutureRangeChange(o.id)}
-                className={`flex-1 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
-                  futureRange === o.id ? 'bg-[#3b82f6] text-white' : 'bg-[#374151] text-text-secondary hover:text-text-primary'
-                }`}>{o.label}</button>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {!hasData ? (
         <div className="h-45 flex items-center justify-center text-text-secondary text-sm">
-          No data in this range
+          {t('range_no_data')}
         </div>
       ) : (
         <>
@@ -217,11 +177,11 @@ export function GrowthChart({ plans, deposits, withdrawals, pastRange, futureRan
           <div className="flex items-center gap-4 mt-2 px-1">
             <div className="flex items-center gap-1.5">
               <div className="w-4 h-0.5 bg-brand" />
-              <span className="text-[10px] text-text-secondary">Historical</span>
+              <span className="text-[10px] text-text-secondary">{t('chart_historical')}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-4 h-0.5" style={{ borderTop: '2px dashed #3b82f6' }} />
-              <span className="text-[10px] text-text-secondary">Projected</span>
+              <span className="text-[10px] text-text-secondary">{t('chart_projected')}</span>
             </div>
           </div>
         </>

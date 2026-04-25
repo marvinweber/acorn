@@ -131,6 +131,21 @@ const translations = {
     hide_history: 'Ältere verbergen',
     older_items_hidden: 'Ältere Einträge ausgeblendet',
 
+    // Range picker
+    range_picker_title: 'Zeitraum',
+    range_past: 'Vergangenheit',
+    range_future: 'Prognose',
+    range_custom: 'Benutzerdefiniert',
+    range_from: 'Von',
+    range_to_optional: 'Bis (optional)',
+    range_to_placeholder: 'Heute (keine Prognose)',
+    range_reset_to_presets: 'Voreinstellungen',
+    range_no_data: 'Keine Daten in diesem Zeitraum',
+    range_summary_all_history: 'Gesamter Verlauf',
+    range_summary_today: 'Heute',
+    chart_historical: 'Historisch',
+    chart_projected: 'Prognose',
+
     // Onboarding
     show_onboarding: 'Einführung nochmals anzeigen',
     onboarding_skip: 'Überspringen',
@@ -275,6 +290,21 @@ const translations = {
     show_history: 'Show older',
     hide_history: 'Hide older',
     older_items_hidden: 'Older items hidden',
+
+    // Range picker
+    range_picker_title: 'View Range',
+    range_past: 'Past',
+    range_future: 'Projection',
+    range_custom: 'Custom dates',
+    range_from: 'From',
+    range_to_optional: 'To (optional)',
+    range_to_placeholder: 'Today (no projection)',
+    range_reset_to_presets: 'Back to presets',
+    range_no_data: 'No data in this range',
+    range_summary_all_history: 'All history',
+    range_summary_today: 'Today',
+    chart_historical: 'Historical',
+    chart_projected: 'Projected',
 
     // Onboarding
     show_onboarding: 'Show introduction again',
