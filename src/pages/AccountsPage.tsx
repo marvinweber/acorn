@@ -5,7 +5,6 @@ import { calcAcornBalance } from '../calculations';
 import { t, formatCurrency } from '../i18n';
 import { BottomSheet } from '../components/BottomSheet';
 import { ConfirmDialog } from '../components/ConfirmDialog';
-import { FAB } from '../components/FAB';
 import { EmojiPickerField } from '../components/EmojiPicker';
 import { FormInput, FormTextArea, FormSelect } from '../components/FormField';
 import { AllocationChart } from '../components/AllocationChart';
@@ -86,6 +85,12 @@ function AccountListView({ onSelectAccount }: { onSelectAccount: (id: string) =>
 
   return (
     <div className="flex flex-col gap-3 pb-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-text-primary">{t('accounts')}</h3>
+        <button onClick={openAdd} className="text-brand text-xs font-medium hover:opacity-80 cursor-pointer">
+          + {t('new_account')}
+        </button>
+      </div>
       {accounts.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-64 gap-3 text-text-secondary">
           <Landmark size={40} className="opacity-40" />
@@ -128,8 +133,6 @@ function AccountListView({ onSelectAccount }: { onSelectAccount: (id: string) =>
           </div>
         ))
       )}
-
-      <FAB actions={[{ label: t('new_account'), onClick: openAdd }]} />
 
       <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)} title={editTarget ? t('edit_account') : t('new_account')}>
         <div className="flex flex-col gap-4">
@@ -259,6 +262,12 @@ function AccountDetailView({
       )}
 
       {/* Acorns list */}
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-text-primary">{t('acorns')}</h3>
+        <button onClick={openAdd} className="text-brand text-xs font-medium hover:opacity-80 cursor-pointer">
+          + {t('new_acorn')}
+        </button>
+      </div>
       {accountAcorns.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-40 gap-2 text-text-secondary">
           <p className="text-sm">{t('no_acorns')}</p>
@@ -300,8 +309,6 @@ function AccountDetailView({
           </div>
         ))
       )}
-
-      <FAB actions={[{ label: t('new_acorn'), onClick: openAdd }]} />
 
       <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)} title={editId ? t('edit_acorn') : t('new_acorn')}>
         <div className="flex flex-col gap-4">
