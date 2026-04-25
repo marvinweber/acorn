@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 interface Props {
@@ -20,7 +21,7 @@ export function BottomSheet({ open, onClose, title, children }: Props) {
 
   if (!open) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex flex-col justify-end max-w-120 mx-auto">
       <div
         className="absolute inset-0 bg-black/60"
@@ -40,6 +41,7 @@ export function BottomSheet({ open, onClose, title, children }: Props) {
           {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
