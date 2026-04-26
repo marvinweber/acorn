@@ -208,13 +208,14 @@ export function AcornDetailPage({ acornId, onBack, backLabel }: Props) {
             <Row
               key={plan.id}
               primary={(() => {
-                if (!plan.planningRhythm || plan.planningRhythm === plan.rhythm) {
-                  return `${formatCurrency(plan.amount)} · ${t(plan.rhythm)}`;
-                }
-                const planningAmt = convertToRhythm(plan.amount, plan.rhythm, plan.planningRhythm);
-                return `${formatCurrency(planningAmt)} · ${t(plan.planningRhythm)} (${t('booked')} ${formatCurrency(plan.amount)} · ${t(plan.rhythm)})`;
+                const pr = plan.planningRhythm ?? plan.rhythm;
+                const planningAmt = convertToRhythm(plan.amount, plan.rhythm, pr);
+                return `${formatCurrency(planningAmt)} · ${t(pr)}`;
               })()}
               secondary={`${t('start')}: ${formatDate(plan.start)}${plan.end ? ` · ${t('end')}: ${formatDate(plan.end)}` : ''}`}
+              tertiary={plan.planningRhythm && plan.planningRhythm !== plan.rhythm
+                ? `${t('booked')} ${formatCurrency(plan.amount)} · ${t(plan.rhythm)}`
+                : undefined}
               note={plan.note}
               onEdit={() => openPlanSheet(plan)}
               onDelete={() => setDeleteTarget({ type: 'plan', id: plan.id })}
@@ -324,9 +325,9 @@ function EmptyRow({ label }: { label: string }) {
 }
 
 function Row({
-  primary, secondary, note, positive, negative, onEdit, onDelete
+  primary, secondary, tertiary, note, positive, negative, onEdit, onDelete
 }: {
-  primary: string; secondary?: string; note?: string;
+  primary: string; secondary?: string; tertiary?: string; note?: string;
   positive?: boolean; negative?: boolean;
   onEdit: () => void; onDelete: () => void;
 }) {
@@ -337,6 +338,7 @@ function Row({
           {primary}
         </p>
         {secondary && <p className="text-xs text-text-secondary">{secondary}</p>}
+        {tertiary && <p className="text-xs text-text-secondary">{tertiary}</p>}
         {note && <p className="text-xs text-[#6b7280] italic truncate">{note}</p>}
       </div>
       <div className="flex gap-3 ml-3">
