@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
@@ -9,7 +9,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-export function BottomSheet({ open, onClose, title, children }: Props) {
+export function BottomSheet({ open, onClose, title, children }: Props): React.ReactNode {
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
