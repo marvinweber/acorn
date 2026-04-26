@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useStore } from '../store';
-import { calcAcornBalance, getEarliestDate } from '../calculations';
+import { calcAcornBalance, convertToRhythm, getEarliestDate } from '../calculations';
 import { t, formatCurrency, formatDate } from '../i18n';
 import { BottomSheet } from '../components/BottomSheet';
 import { ConfirmDialog } from '../components/ConfirmDialog';
@@ -75,6 +75,7 @@ export function AcornDetailPage({ acornId, onBack, backLabel }: Props) {
   // Plan form
   const [planAmount, setPlanAmount] = useState('');
   const [planRhythm, setPlanRhythm] = useState<Rhythm>('monthly');
+  const [planPlanningRhythm, setPlanPlanningRhythm] = useState<Rhythm>('monthly');
   const [planStart, setPlanStart] = useState(new Date().toISOString().slice(0, 10));
   const [planEnd, setPlanEnd] = useState('');
   const [planNote, setPlanNote] = useState('');
@@ -86,13 +87,15 @@ export function AcornDetailPage({ acornId, onBack, backLabel }: Props) {
 
   function openPlanSheet(data?: SavingsPlan) {
     if (data) {
-      setPlanAmount(data.amount.toString());
+      const pr = data.planningRhythm ?? data.rhythm;
+      setPlanAmount(convertToRhythm(data.amount, data.rhythm, pr).toString());
       setPlanRhythm(data.rhythm);
+      setPlanPlanningRhythm(pr);
       setPlanStart(data.start);
       setPlanEnd(data.end ?? '');
       setPlanNote(data.note ?? '');
     } else {
-      setPlanAmount(''); setPlanRhythm('monthly');
+      setPlanAmount(''); setPlanRhythm('monthly'); setPlanPlanningRhythm('monthly');
       setPlanStart(new Date().toISOString().slice(0, 10));
       setPlanEnd(''); setPlanNote('');
     }
@@ -112,9 +115,11 @@ export function AcornDetailPage({ acornId, onBack, backLabel }: Props) {
 
   function savePlan() {
     if (!planAmount) return;
+    const bookingAmount = convertToRhythm(parseFloat(planAmount), planPlanningRhythm, planRhythm);
     const data = {
-      acornId, amount: parseFloat(planAmount), rhythm: planRhythm,
+      acornId, amount: bookingAmount, rhythm: planRhythm,
       start: planStart, end: planEnd || undefined, note: planNote || undefined,
+      ...(planPlanningRhythm !== planRhythm ? { planningRhythm: planPlanningRhythm } : {}),
     };
     if (sheet?.type === 'plan' && sheet.data) updateSavingsPlan(sheet.data.id, data);
     else addSavingsPlan(data);
@@ -202,7 +207,13 @@ export function AcornDetailPage({ acornId, onBack, backLabel }: Props) {
           : visiblePlans.map(plan => (
             <Row
               key={plan.id}
-              primary={`${formatCurrency(plan.amount)} · ${t(plan.rhythm)}`}
+              primary={(() => {
+                if (!plan.planningRhythm || plan.planningRhythm === plan.rhythm) {
+                  return `${formatCurrency(plan.amount)} · ${t(plan.rhythm)}`;
+                }
+                const planningAmt = convertToRhythm(plan.amount, plan.rhythm, plan.planningRhythm);
+                return `${formatCurrency(planningAmt)} · ${t(plan.planningRhythm)} (${t('booked')} ${formatCurrency(plan.amount)} · ${t(plan.rhythm)})`;
+              })()}
               secondary={`${t('start')}: ${formatDate(plan.start)}${plan.end ? ` · ${t('end')}: ${formatDate(plan.end)}` : ''}`}
               note={plan.note}
               onEdit={() => openPlanSheet(plan)}
@@ -247,7 +258,8 @@ export function AcornDetailPage({ acornId, onBack, backLabel }: Props) {
       >
         <div className="flex flex-col gap-4">
           <FormInput label={t('amount')} value={planAmount} onChange={setPlanAmount} type="number" min="0.01" step="0.01" required />
-          <FormSelect label={t('rhythm')} value={planRhythm} onChange={v => setPlanRhythm(v as Rhythm)} options={RHYTHM_OPTIONS()} />
+          <FormSelect label={t('planning_rhythm')} value={planPlanningRhythm} onChange={v => setPlanPlanningRhythm(v as Rhythm)} options={RHYTHM_OPTIONS()} />
+          <FormSelect label={t('rhythm')} value={planRhythm} onChange={v => { const r = v as Rhythm; if (planPlanningRhythm === planRhythm) setPlanPlanningRhythm(r); setPlanRhythm(r); }} options={RHYTHM_OPTIONS()} />
           <FormInput label={t('start')} value={planStart} onChange={setPlanStart} type="date" required />
           <FormInput label={`${t('end')} (${t('optional')})`} value={planEnd} onChange={setPlanEnd} type="date" />
           <FormInput label={`${t('note')} (${t('optional')})`} value={planNote} onChange={setPlanNote} />

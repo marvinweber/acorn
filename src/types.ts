@@ -23,6 +23,7 @@ export interface SavingsPlan {
   acornId: string;
   amount: number;
   rhythm: Rhythm;
+  planningRhythm?: Rhythm;
   start: string;
   end?: string;
   note?: string;
