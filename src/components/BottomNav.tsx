@@ -1,7 +1,7 @@
-import { Home, Landmark, Settings } from 'lucide-react';
+import { Home, Landmark, Repeat, Settings } from 'lucide-react';
 import { t } from '../i18n';
 
-export type NavTab = 'overview' | 'accounts' | 'settings';
+export type NavTab = 'overview' | 'accounts' | 'orders' | 'settings';
 
 interface Props {
   active: NavTab;
@@ -12,6 +12,7 @@ export function BottomNav({ active, onChange }: Props) {
   const items: { id: NavTab; icon: typeof Home; label: string }[] = [
     { id: 'overview', icon: Home, label: t('overview') },
     { id: 'accounts', icon: Landmark, label: t('accounts') },
+    { id: 'orders', icon: Repeat, label: t('orders') },
     { id: 'settings', icon: Settings, label: t('settings') },
   ];
 

@@ -128,6 +128,30 @@ export function calcChartSeries(
   return points;
 }
 
+const YEARLY_FACTORS: Record<Rhythm, number> = {
+  weekly: 52,
+  monthly: 12,
+  quarterly: 4,
+  yearly: 1,
+};
+
+export function convertToRhythm(amount: number, from: Rhythm, to: Rhythm): number {
+  if (from === to) return amount;
+  const yearly = amount * YEARLY_FACTORS[from];
+  return yearly / YEARLY_FACTORS[to];
+}
+
+export function isActivePlan(plan: SavingsPlan, asOf: Date): boolean {
+  const start = startOfDay(parseISO(plan.start));
+  const today = startOfDay(asOf);
+  if (isAfter(start, today)) return false;
+  if (plan.end) {
+    const end = startOfDay(parseISO(plan.end));
+    if (!isAfter(end, today)) return false;
+  }
+  return true;
+}
+
 export function getEarliestDate(
   plans: SavingsPlan[],
   deposits: Deposit[],

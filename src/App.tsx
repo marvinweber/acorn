@@ -11,6 +11,7 @@ import { StorageGate } from './components/StorageGate';
 import { Onboarding } from './components/Onboarding';
 import { OverviewPage } from './pages/OverviewPage';
 import { AccountsPage } from './pages/AccountsPage';
+import { StandingOrdersPage } from './pages/StandingOrdersPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { t } from './i18n';
 
@@ -19,6 +20,7 @@ const ONBOARDING_KEY = 'acorn-onboarding-done';
 const PAGE_TITLES: Record<NavTab, () => string> = {
   overview: () => t('overview'),
   accounts: () => t('accounts'),
+  orders: () => t('standing_orders'),
   settings: () => t('settings'),
 };
 
@@ -164,6 +166,7 @@ export default function App() {
       <main className="flex-1 px-4 pt-4 pb-24 overflow-y-auto">
         {tab === 'overview' && <OverviewPage key={locale} />}
         {tab === 'accounts' && <AccountsPage key={locale} />}
+        {tab === 'orders' && <StandingOrdersPage key={locale} />}
         {tab === 'settings' && (
           <SettingsPage
             key={locale}

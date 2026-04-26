@@ -5,7 +5,18 @@ const translations = {
     // Nav
     overview: 'Übersicht',
     accounts: 'Konten',
+    orders: 'Aufträge',
     settings: 'Einstellungen',
+
+    // Standing Orders
+    standing_orders: 'Daueraufträge',
+    standing_orders_subtitle: 'Überweise diese Beträge an deine Konten',
+    no_savings_plans_for_account: 'Keine aktiven Sparpläne.',
+    standing_orders_info: 'Vergleiche diese Werte mit deinen tatsächlich eingerichteten Daueraufträgen bei deiner Bank, um sicherzustellen, dass alles mit deinen Sparplänen in Acorn übereinstimmt.',
+    per_week: 'pro Woche',
+    per_month: 'pro Monat',
+    per_quarter: 'pro Quartal',
+    per_year: 'pro Jahr',
 
     // Common
     save: 'Speichern',
@@ -175,7 +186,18 @@ const translations = {
   en: {
     overview: 'Overview',
     accounts: 'Accounts',
+    orders: 'Orders',
     settings: 'Settings',
+
+    // Standing Orders
+    standing_orders: 'Standing Orders',
+    standing_orders_subtitle: 'Transfer these amounts to each account',
+    no_savings_plans_for_account: 'No active savings plans.',
+    standing_orders_info: 'Use this view to verify that the standing orders set up with your bank match the savings plans configured in Acorn.',
+    per_week: 'per week',
+    per_month: 'per month',
+    per_quarter: 'per quarter',
+    per_year: 'per year',
 
     save: 'Save',
     cancel: 'Cancel',
