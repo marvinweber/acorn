@@ -4,9 +4,11 @@ import { useStore } from '../store';
 import { calcAcornBalance } from '../calculations';
 import { t, formatCurrency } from '../i18n';
 import { AcornDetailPage } from './AcornDetailPage';
+import { AccountDetailView } from './AccountsPage';
 
 export function OverviewPage() {
   const [selectedAcornId, setSelectedAcornId] = useState<string | null>(null);
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
   const { accounts, acorns, savingsPlans, deposits, withdrawals } = useStore();
 
   const accountSummaries = useMemo(() => {
@@ -36,6 +38,16 @@ export function OverviewPage() {
     );
   }
 
+  if (selectedAccountId) {
+    return (
+      <AccountDetailView
+        accountId={selectedAccountId}
+        onBack={() => setSelectedAccountId(null)}
+        onSelectAcorn={acornId => setSelectedAcornId(acornId)}
+      />
+    );
+  }
+
   if (accounts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-3 text-text-secondary">
@@ -60,12 +72,18 @@ export function OverviewPage() {
       {/* Per-account */}
       {accountSummaries.map(({ account, acornData, total }) => (
         <div key={account.id} className="bg-surface-alt rounded-xl border border-[#374151] overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-[#374151]">
+          <div
+            className="flex items-center justify-between px-4 py-3 border-b border-[#374151] hover:bg-surface-raised transition-colors cursor-pointer"
+            onClick={() => setSelectedAccountId(account.id)}
+          >
             <div className="flex items-center gap-2">
               <Landmark size={16} className="text-text-secondary" />
               <span className="font-medium text-text-primary text-sm">{account.name}</span>
             </div>
-            <span className="text-brand font-semibold text-sm">{formatCurrency(total)}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-brand font-semibold text-sm">{formatCurrency(total)}</span>
+              <ChevronRight size={14} className="text-text-secondary" />
+            </div>
           </div>
           {acornData.length === 0 ? (
             <div className="px-4 py-3 text-sm text-text-secondary">{t('no_acorns')}</div>

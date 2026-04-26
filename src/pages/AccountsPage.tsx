@@ -161,7 +161,7 @@ function AccountListView({ onSelectAccount }: { onSelectAccount: (id: string) =>
 
 // ─── Account Detail ───────────────────────────────────────────────────────────
 
-function AccountDetailView({
+export function AccountDetailView({
   accountId, onBack, onSelectAcorn,
 }: {
   accountId: string;
