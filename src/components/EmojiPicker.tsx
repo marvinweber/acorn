@@ -1,14 +1,18 @@
 import { useState } from 'react';
 import { BottomSheet } from './BottomSheet';
-import { t } from '../i18n';
+import { t, TranslationKey } from '../i18n';
 
-const EMOJI_OPTIONS = [
-  '🌰', '🏦', '💰', '🎯', '🏠', '🚗', '✈️', '🏖️',
-  '🎓', '💊', '🛒', '🎁', '📱', '💻', '🌍', '🏋️',
-  '🎵', '📚', '🐾', '☕', '🍕', '🎮', '⌚', '🚀',
-  '🌱', '💎', '🪙', '💵', '🏆', '🔑', '🛠️', '👶',
-  '🐶', '🐱', '🎨', '📷', '🎬', '🏊', '🚲', '🛻',
-  '🏥', '⚽', '🎸', '🍺', '🧳', '🌸', '❄️', '🔥',
+const EMOJI_CATEGORIES: { label: TranslationKey; emojis: string[] }[] = [
+  { label: 'emoji_cat_money', emojis: ['🌰', '🏦', '💰', '💎', '🪙', '💵'] },
+  { label: 'emoji_cat_home', emojis: ['🏠', '🔑', '🛠️', '🪴', '🪑', '🛋️'] },
+  { label: 'emoji_cat_travel', emojis: ['🚗', '✈️', '🏖️', '🚲', '🛻', '🏍️', '⛵', '🧳', '🌍'] },
+  { label: 'emoji_cat_tech', emojis: ['📱', '💻', '⌚', '🎧', '📷', '🚀'] },
+  { label: 'emoji_cat_food', emojis: ['☕', '🍕', '🍺', '🍷'] },
+  { label: 'emoji_cat_health', emojis: ['💊', '🏥', '🏋️', '🏊', '⚽', '🏆'] },
+  { label: 'emoji_cat_fashion', emojis: ['🛒', '🎁', '👕', '👟', '🕶️', '🧴'] },
+  { label: 'emoji_cat_entertainment', emojis: ['🎵', '🎸', '🎬', '🎨', '📚', '🎫', '🎯', '🎮'] },
+  { label: 'emoji_cat_family', emojis: ['👶', '🐶', '🐱', '🐾', '🎓'] },
+  { label: 'emoji_cat_nature', emojis: ['🌱', '🌸', '❄️', '🔥'] },
 ];
 
 interface Props {
@@ -34,18 +38,25 @@ export function EmojiPickerField({ value, onChange }: Props) {
       </div>
 
       <BottomSheet open={open} onClose={() => setOpen(false)} title={t('pick_icon')}>
-        <div className="grid grid-cols-8 gap-2">
-          {EMOJI_OPTIONS.map(emoji => (
-            <button
-              key={emoji}
-              type="button"
-              onClick={() => { onChange(emoji); setOpen(false); }}
-              className={`text-2xl p-2 rounded-lg transition-colors cursor-pointer hover:bg-[#374151] ${
-                value === emoji ? 'bg-[#374151] ring-2 ring-brand' : ''
-              }`}
-            >
-              {emoji}
-            </button>
+        <div className="flex flex-col gap-4">
+          {EMOJI_CATEGORIES.map(({ label, emojis }) => (
+            <div key={label}>
+              <p className="text-xs text-text-secondary mb-1.5">{t(label)}</p>
+              <div className="grid grid-cols-8 gap-2">
+                {emojis.map(emoji => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => { onChange(emoji); setOpen(false); }}
+                    className={`text-2xl p-2 rounded-lg transition-colors cursor-pointer hover:bg-surface-raised ${
+                      value === emoji ? 'bg-surface-raised ring-2 ring-brand' : ''
+                    }`}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       </BottomSheet>

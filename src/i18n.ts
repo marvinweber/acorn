@@ -121,6 +121,16 @@ const translations = {
     // Icon
     icon: 'Symbol',
     pick_icon: 'Symbol wählen',
+    emoji_cat_money: 'Geld & Finanzen',
+    emoji_cat_home: 'Zuhause & Wohnen',
+    emoji_cat_travel: 'Reisen & Mobilität',
+    emoji_cat_tech: 'Technik & Gadgets',
+    emoji_cat_food: 'Essen & Trinken',
+    emoji_cat_health: 'Gesundheit & Sport',
+    emoji_cat_fashion: 'Mode & Shopping',
+    emoji_cat_entertainment: 'Unterhaltung',
+    emoji_cat_family: 'Familie & Tiere',
+    emoji_cat_nature: 'Natur',
 
     // Storage
     storage_title: 'Datenspeicher aktivieren',
@@ -294,6 +304,16 @@ const translations = {
     // Icon
     icon: 'Icon',
     pick_icon: 'Pick icon',
+    emoji_cat_money: 'Money & Finance',
+    emoji_cat_home: 'Home & Living',
+    emoji_cat_travel: 'Travel & Transport',
+    emoji_cat_tech: 'Tech & Gadgets',
+    emoji_cat_food: 'Food & Drink',
+    emoji_cat_health: 'Health & Sports',
+    emoji_cat_fashion: 'Fashion & Shopping',
+    emoji_cat_entertainment: 'Entertainment',
+    emoji_cat_family: 'Family & Pets',
+    emoji_cat_nature: 'Nature',
 
     // Storage
     storage_title: 'Enable persistent storage',
